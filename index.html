@@ -1,0 +1,91 @@
+<!doctype html><html lang="zh"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>今天我来当大厨</title>
+<link rel="icon" href="art/ingredients/tomato.png">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;user-select:none}
+html,body{height:100%;background:#f3dfc4;font-family:"PingFang SC","Microsoft YaHei",sans-serif;overflow:hidden}
+#app{position:relative;height:100%;max-width:calc(100vh*9/16);margin:0 auto;background:#f6e6cc url(art/ui/bg_kitchen.jpg) center/cover no-repeat;overflow:hidden}
+canvas{display:block;touch-action:none}
+img{-webkit-user-drag:none;pointer-events:none}
+#pot{position:absolute;left:0;top:0;width:10px;height:10px;max-width:none;z-index:0}
+#app .steam{position:absolute;z-index:0;left:50%;width:26%;opacity:0;pointer-events:none;animation:steam 4.5s ease-in-out infinite}
+#app .steam.s2{width:20%;margin-left:16%;animation-delay:2.2s}
+@keyframes steam{0%{opacity:0;transform:translate(-50%,12px) scale(.9)}30%{opacity:.45}100%{opacity:0;transform:translate(-50%,-50px) scale(1.15)}}
+#hud{position:absolute;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:10px 12px;z-index:3}
+.pill{background:#fffaf0;border:2px solid #7a4a2b;border-radius:20px;padding:3px 12px;font-weight:bold;color:#a2572b;box-shadow:0 3px 0 #c89a6a;font-size:13px;display:flex;align-items:center;gap:4px;height:30px}
+.pill img{width:20px;height:20px}
+button{border:none;border-radius:20px;padding:8px 16px;font-weight:bold;font-size:15px;color:#fff;background:#ff8f4d;box-shadow:0 4px 0 #c0561d;cursor:pointer;font-family:inherit}
+button:active{transform:translateY(3px);box-shadow:0 1px 0 #c0561d}
+.imgbtn{background:none;box-shadow:none;padding:0;position:relative;display:block;filter:drop-shadow(0 3px 0 #0003)}
+.imgbtn:active{box-shadow:none;transform:scale(.92)}
+.imgbtn img{width:100%;height:100%;display:block}
+#restart{width:38px;height:38px}
+#shuffle{width:60px;height:60px;flex:none}
+#shufN{position:absolute;right:-4px;top:-4px;min-width:22px;height:22px;border-radius:11px;background:#ff5a5a;border:2px solid #fff;color:#fff;font-size:12px;line-height:18px;text-align:center;box-shadow:0 2px 0 #0003}
+#bottom{position:absolute;left:0;right:0;bottom:0;padding:0 10px 14px;z-index:3}
+#tray{position:relative;width:100%;aspect-ratio:640/154;background:url(art/ui/tray.png) center/100% 100% no-repeat;filter:drop-shadow(0 4px 4px #0003)}
+.slot{position:absolute;top:10%;height:78%;width:12.24%}
+.titem{position:absolute;object-fit:contain;padding:2px;transition:left .2s ease,top .2s ease,transform .25s,opacity .25s;pointer-events:none}
+.titem.pop{transform:scale(1.3);opacity:0!important}
+.trayfx{position:absolute;pointer-events:none;object-fit:contain;animation:trayfx .45s forwards;z-index:4}
+@keyframes trayfx{from{transform:scale(.4);opacity:1}to{transform:scale(1.6);opacity:0}}
+.flyer{position:absolute;object-fit:contain;pointer-events:none;z-index:5;filter:drop-shadow(0 4px 4px #0003)}
+#props{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:4px;padding:0 6px}
+#orders{position:absolute;top:50px;left:8px;right:8px;display:flex;gap:6px;justify-content:center;z-index:3}
+.order{flex:0 1 33%;min-width:0;text-align:center;position:relative}
+.order.fresh{animation:popin .4s}
+@keyframes popin{from{transform:scale(.3);opacity:0}to{transform:none;opacity:1}}
+.card{position:relative;width:100%;aspect-ratio:384/265;background:center/100% 100% no-repeat;filter:drop-shadow(0 3px 2px #0003)}
+.card .cust,.card .dish{position:absolute;transform:translate(-50%,-50%);object-fit:contain;border-radius:50%}
+.card .cust{left:25%;top:57%;width:34%}
+.card .dish{left:72%;top:57%;width:43%}
+.reward{position:absolute;top:-4px;right:-3px;display:flex;align-items:center;gap:1px;background:#fff3c4;border:2px solid #7a4a2b;border-radius:10px;padding:0 5px 0 2px;font-size:10px;font-weight:bold;color:#8a5a00;height:18px}
+.reward img{width:14px;height:14px}
+.needs{display:flex;justify-content:center;gap:2px;margin-top:3px}
+.need{display:flex;align-items:center;justify-content:center;flex:1 1 0;min-width:0;max-width:62px;background:#fffaf0cc;border:1.5px solid #c89a6a;border-radius:10px;padding:1px 2px 1px 0;font-size:10px;font-weight:bold;color:#8a4b26;white-space:nowrap}
+.need img{width:21px;height:21px;flex:none}.need.ok{background:#d9f7d9;border-color:#6bbf6b;color:#2f8f2f}
+#toast{position:absolute;top:calc(50px + 150px);left:50%;transform:translateX(-50%);background:#fffaf0ee;border:2px solid #7a4a2b;border-radius:16px;padding:5px 14px;color:#a2572b;font-weight:bold;font-size:14px;white-space:nowrap;opacity:0;pointer-events:none;z-index:7;display:flex;align-items:center;gap:4px}
+#toast img{width:18px;height:18px}
+#toast.show{animation:toast 1.8s}
+@keyframes toast{0%{opacity:0;transform:translate(-50%,10px)}15%,75%{opacity:1;transform:translate(-50%,0)}100%{opacity:0}}
+#helper{position:relative;cursor:pointer;transition:transform .2s;width:112px;height:112px;flex:none}
+#helper:active{transform:scale(.94)}
+#chef{width:100%;height:100%;display:block;filter:drop-shadow(0 3px 2px #0003)}
+#helper[data-mood=happy] #chef,#helper[data-mood=cheer] #chef{animation:hop .4s 3}
+@keyframes hop{50%{transform:translateY(-10px)}}
+#plate{position:absolute;left:51%;top:67%;width:22%;aspect-ratio:1;transform:translate(-50%,-50%);display:flex;align-items:center;justify-content:center}
+#plate img{width:112%;height:112%;max-width:none;animation:popin .3s}
+.fx{position:absolute;pointer-events:none;z-index:6;transform:translate(-50%,-50%)}
+.confetti{width:26px;height:26px;object-fit:contain;animation:conf 1.2s forwards}
+@keyframes conf{to{transform:translate(calc(-50% + var(--dx)),180px) rotate(360deg);opacity:0}}
+.boom{width:150px;height:150px;object-fit:contain;animation:boom .7s forwards}
+@keyframes boom{from{transform:translate(-50%,-50%) scale(.3)}to{transform:translate(-50%,-50%) scale(1.5);opacity:0}}
+.crack{width:70px;height:70px;object-fit:contain;animation:boom .5s forwards}
+.overlay{position:absolute;inset:0;background:#3a1f0f99;display:none;align-items:center;justify-content:center;z-index:10;flex-direction:column}
+#card{position:relative;width:84%;aspect-ratio:512/340;background:url(art/ui/panel_win.png) center/100% 100% no-repeat;text-align:center}
+#card.lose{aspect-ratio:512/426;background-image:url(art/ui/panel_lose.png)}
+#msg{position:absolute;left:8%;right:8%;top:36%;color:#a2572b;font-size:30px;font-weight:900;line-height:1.1;text-shadow:0 2px 0 #fff}
+#card.lose #msg{top:58%;color:#555e70}
+#msg small{display:block;font-size:14px;color:#a77a55;margin-top:8px;font-weight:bold;text-shadow:none}
+#next{position:absolute;left:50%;top:80%;transform:translate(-50%,-50%);white-space:nowrap;font-size:18px;padding:9px 26px}
+#next:active{transform:translate(-50%,-50%) translateY(3px)}
+#card.lose #next{top:82%;background:#7f8aa3;box-shadow:0 4px 0 #566079}
+#title{background:#5a2c1280;z-index:11;gap:26px}
+#title img{width:86%;max-width:420px;filter:drop-shadow(0 6px 6px #0004);animation:bob 2.4s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-6px)}}
+#start{font-size:24px;padding:12px 44px;border-radius:30px}
+#loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#a2572b;font-weight:bold;z-index:20;background:#f6e6cc}
+</style>
+<script type="importmap">{"imports":{"three":"./vendor/three.module.js","cannon-es":"./vendor/cannon-es.js"}}</script>
+</head><body><div id="app">
+<img id="pot" src="art/ui/pot.png" alt=""><img class="steam" src="art/fx/steam.png" alt=""><img class="steam s2" src="art/fx/steam.png" alt="">
+<div id="hud"><span class="pill" id="lvl">第 1 关</span><span class="pill" id="goal">订单 0/0</span><span class="pill"><img src="art/ui/coin.png" alt=""><span id="coins">0</span></span><button id="restart" class="imgbtn" title="重来"><img src="art/ui/btn_restart.png" alt="重来"></button></div>
+<div id="orders"></div><div id="toast"></div>
+<div id="bottom"><div id="props">
+<div id="helper" data-mood="" title="小厨师：点我把托盘最后一个放到盘子上 / 再点放回"><img id="chef" src="art/chef/idle.png" alt="小厨师"><div id="plate"></div></div>
+<button id="shuffle" class="imgbtn" title="摇一摇"><img src="art/ui/btn_shuffle.png" alt="摇一摇"><span id="shufN">2</span></button></div><div id="tray"></div></div>
+<div id="overlay" class="overlay"><div id="card"><h2 id="msg"></h2><button id="next"></button></div></div>
+<div id="title" class="overlay" style="display:none"><img src="art/ui/logo.png" alt="今天我来当大厨"><button id="start">开始游戏</button></div>
+<div id="loading">加载中…</div>
+</div><script type="module" src="game.js"></script></body></html>
